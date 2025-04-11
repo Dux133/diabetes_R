@@ -1,0 +1,34 @@
+library(data.table)
+library(dplyr)
+library(corrplot)
+library(lmtest)
+library(sandwich)
+library(lmtest)
+fread('diabetes.csv')
+ins.data<-fread('diabetes.csv')
+head(ins.data)
+summary(ins.data1$Insulin)
+ins.data1<-ins.data[ins.data$Insulin !=0,]
+ins.data1 <- ins.data1 %>% rename(DPF = DiabetesPedigreeFunction,
+           BP = BloodPressure,
+           Skin = SkinThickness,
+           Out = Outcome)
+ins.data1 %>% select(-Pregnancies ) -> dane
+corrplot(
+  cor(dane),
+  method = 'pie',
+  cl.cex = 0.5,
+  tl.col = 1,
+  tl.cex = 0.5,
+  number.cex = 0.8,
+  addCoef.col = 'black')
+modlin<-lm(Out~.,data = dane)
+plot(modlin)
+summary(modlin)
+modlin$residuals %>% shapiro.test()
+acf(modlin$residuals)
+bptest(modlin)
+gqtest(modlin)
+hmctest(modlin)
+plot(modlin$residuals)
+
