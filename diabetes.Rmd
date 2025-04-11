@@ -26,18 +26,42 @@ df_filtered <- df %>%
   filter(across(c(BMI, Insulin, SkinThickness, BloodPressure, Glucose), ~ .x != 0))
 df_filtered %>%
   rename(DPF = DiabetesPedigreeFunction) -> df_model
-mat_cor <- cor(df_filtered)
+mat_cor <- cor(df_model)
 corrplot(mat_cor)
 head(df_filtered)
 
 ```
 
 ```{r}
-scale(df_model$Outcome) -> df_model$Outcome
-model <- lm(Outcome ~ Glucose + BMI + DPF + Age, 
-                    data = df_model)
+# Dopasowanie modelu regresji logistycznej
+
+model <- glm(Outcome ~ Glucose + BMI + DPF + Age,
+                   data = df_model, family = binomial)
+
+# Podsumowanie wyników modelu
 summary(model)
 plot(model)
+```
+```{r}
+# Obliczenie ilorazów szans
+exp(coef(model))
+
+```
+```{r}
+# Predykcja prawdopodobieństw dla oryginalnych danych
+predicted_prob <- predict(model, type = "response")
+
+# Zamiana prawdopodobieństw na klasy (przy progu 0.5)
+predicted_class <- ifelse(predicted_prob > 0.5, "cukrzyca", "brak cukrzycy")
+
+# Wyświetlenie pierwszych kilku wartości
+head(predicted_class)
+
+```
+```{r}
+# Macierz pomyłek
+table(Predicted = predicted_class, Actual = df_model$Outcome)
+
 ```
 
 ```{r}
@@ -46,23 +70,21 @@ set.seed(123)
 train_idx <- sample(1:nrow(df_model), 0.7*nrow(df_model))
 train <- df_model[train_idx,]
 test <- df_model[-train_idx,]
-final_model <- lm(Outcome ~ Glucose + BMI + DPF + Age, data = train)
+final_model <- glm(Outcome ~ Glucose + BMI + DPF + Age, data = train, family = binomial)
 predictions <- predict(final_model, newdata = test)
+summary(final_model)
 ```
 
 ```{r}
-df_filtered$Predicted <- predict(model, newdata = df_model)
-
+df_filtered$Predicted <- round(predict(final_model,
+                                       newdata = df_model,
+                                       type = "response"),2)
 head(df_filtered[c("Outcome", "Predicted")], 10)
+
 ```
 
 ```{r}
 library(ggplot2)
-
-
-df_filtered$Predicted <- predict(model, type = "response")
-
-
 ggplot(df_filtered, aes(x = factor(Outcome), y = Predicted)) +
   geom_jitter(
     aes(color = "Przewidywane"), 
@@ -75,7 +97,7 @@ ggplot(df_filtered, aes(x = factor(Outcome), y = Predicted)) +
     aes(y = Outcome, color = "Rzeczywiste"), 
     size = 2, 
     alpha = 0.3,
-    position = position_jitter(width = 0.1)
+    position = position_jitter(width = 0.0)
   ) +
   scale_color_manual(
     values = c("Rzeczywiste" = "#00cc44", "Przewidywane" = "#ff4444"),

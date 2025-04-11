@@ -1,7 +1,0 @@
-"0",""
-"0","set.seed(123)"
-"0","train_idx <- sample(1:nrow(df_model), 0.7*nrow(df_model))"
-"0","train <- df_model[train_idx,]"
-"0","test <- df_model[-train_idx,]"
-"0","final_model <- lm(Outcome ~ Glucose + BMI + DPF + Age, data = train)"
-"0","predictions <- predict(final_model, newdata = test)"
