@@ -1,5 +1,0 @@
-"0","# Dodaj przewidywania do oryginalnych danych"
-"0","df_filtered$Predicted <- predict(model, newdata = df_filtered)"
-"0",""
-"0","# Wyświetl wybrane kolumny"
-"0","head(df_filtered[c(""Outcome"", ""Predicted"")], 10)  # Pierwsze 10 wierszy"

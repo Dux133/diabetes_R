@@ -3,6 +3,6 @@
 "2","Ostrzeżenie: Using `across()` in `filter()` was deprecated in dplyr 1.0.8.
 Please use `if_any()` or `if_all()` instead."
 "0","df_filtered %>%"
-"0","  rename(DPF = DiabetesPedigreeFunction) -> df_filtered"
+"0","  rename(DPF = DiabetesPedigreeFunction) -> df_model"
 "0","mat_cor <- cor(df_filtered)"
 "0","corrplot(mat_cor)"
